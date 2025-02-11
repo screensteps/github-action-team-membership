@@ -13,7 +13,7 @@ async function run() {
         // core.info(`${{ inputs.lower_env }}`)
         core.setFailed(`bailing early`);
 
-
+/*
         const token = core.getInput('token') ? core.getInput('token') : process.env['GITHUB_TOKEN'];
         const username = context.actor;
         const team = core.getInput('team', {required: true}).toLocaleLowerCase();
@@ -44,6 +44,7 @@ async function run() {
         if (core.getInput('exit').toLocaleLowerCase() == 'true' && !teamPresent) {
             core.setFailed(`Not in team "${team}"`);
         }
+*/
     } catch (err) {
         core.setFailed(`Error while trying to establish team membership: ${err}`);
     }
