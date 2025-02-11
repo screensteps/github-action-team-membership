@@ -6,6 +6,14 @@ run();
 
 async function run() {
     try {
+
+
+        core.info(github.context)
+        // core.info(`${{ github.event.inputs.lower_env }}`)
+        // core.info(`${{ inputs.lower_env }}`)
+        core.setFailed(`bailing early`);
+
+
         const token = core.getInput('token') ? core.getInput('token') : process.env['GITHUB_TOKEN'];
         const username = context.actor;
         const team = core.getInput('team', {required: true}).toLocaleLowerCase();
