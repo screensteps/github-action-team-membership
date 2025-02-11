@@ -6,11 +6,20 @@ run();
 
 async function run() {
     try {
+        const restrictions = core.getInput('restrictions').split(',');
+
+        // if restrictions is empty string
+        // if any restriction combinations do not contain ":"
+        if (restrictions.some(restriction => !restriction.includes(':'))) {
+            core.setFailed('Invalid restrictions value; missing :');
+        }
+
+        core.info(JSON.stringify(restrictions));
 
 
-        core.info(core.getInput('lower_env'))
-        // core.info(`${{ github.event.inputs.lower_env }}`)
-        // core.info(`${{ inputs.lower_env }}`)
+
+
+
         core.setFailed(`bailing early`);
 
 /*
