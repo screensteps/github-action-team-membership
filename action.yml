@@ -21,6 +21,10 @@ inputs:
     description: 'The organization of the team to check for. Defaults to the context organization.'
     required: false
     default: ${{ github.repository_owner }}
+  lower_env:
+    description: 'Lowercase value of deployment environment'
+    required: true
+    default: ''
   exit:
     description: 'If the action should exit if the user is not part of the team.'
     required: false
