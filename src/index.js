@@ -8,7 +8,7 @@ async function run() {
     try {
 
 
-        core.info(github.context)
+        core.info(JSON.stringify(github.context))
         // core.info(`${{ github.event.inputs.lower_env }}`)
         // core.info(`${{ inputs.lower_env }}`)
         core.setFailed(`bailing early`);
