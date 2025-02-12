@@ -6,33 +6,33 @@ run();
 
 async function run() {
     try {
-        const restrictions = core.getInput('restrictions').split(',');
+        const environment = core.getInput('environment', {required: true}).toLocaleLowerCase();
+        const restrictions = core.getInput('restrictions', {required: true}).split(',');
+        const shouldExit = core.getInput('exit').toLocaleLowerCase() == 'true';
+        const token = core.getInput('token') ? core.getInput('token') : process.env['GITHUB_TOKEN'];
+        const username = context.actor;
 
         // if restrictions is empty string
         // if any restriction combinations do not contain ":"
-        if (restrictions.some(restriction => !restriction.includes(':'))) {
-            core.setFailed('Invalid restrictions value; missing :');
+        if (shouldExit && restrictions.some(restriction => !restriction.includes(':'))) {
+            core.setFailed('Invalid restrictions');
         }
 
-        core.info(JSON.stringify(restrictions));
-
-
-
-
-
-        core.setFailed(`bailing early`);
-
-/*
-        const token = core.getInput('token') ? core.getInput('token') : process.env['GITHUB_TOKEN'];
-        const username = context.actor;
-        const team = core.getInput('team', {required: true}).toLocaleLowerCase();
-
+        // Retrieve teams
         const teams = await getTeams(token, username);
         core.setOutput('teams', teams);
         core.info(`User "${username}" is part of the teams: ${teams.join(',')}"`)
 
-        const teamPresent = teams.some(te => te.toLocaleLowerCase() == team);
-        core.setOutput('permitted', teamPresent);
+        // Execute workflow by default
+        let teamPresent = true;
+
+        restrictions.forEach(restriction => {
+            const [env, team] = restriction.split(':');
+            if (env.toLocaleLowerCase() == environment) {
+                teamPresent = teams.includes(team);
+                core.setOutput('permitted', teamPresent);
+            }
+        });
 
         if (core.getInput('comment') && core.getInput('issue-number') && !teamPresent) {
             const comment = core.getInput('comment');
@@ -50,10 +50,10 @@ async function run() {
             }
         }
 
-        if (core.getInput('exit').toLocaleLowerCase() == 'true' && !teamPresent) {
+        if (shouldExit && !teamPresent) {
             core.setFailed(`Not in team "${team}"`);
         }
-*/
+
     } catch (err) {
         core.setFailed(`Error while trying to establish team membership: ${err}`);
     }
