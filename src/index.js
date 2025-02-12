@@ -26,11 +26,15 @@ async function run() {
         // Execute workflow by default
         let teamPresent = true;
 
+        let teamNameForErrorMessage;
         restrictions.forEach(restriction => {
             const [env, team] = restriction.split(':');
             if (env.toLocaleLowerCase() == environment) {
                 teamPresent = teams.includes(team);
                 core.setOutput('permitted', teamPresent);
+                if (!teamPreset) {
+                    teamNameForErrorMessage = team
+                };
             }
         });
 
@@ -51,7 +55,7 @@ async function run() {
         }
 
         if (shouldExit && !teamPresent) {
-            core.setFailed(`Not in team "${team}"`);
+            core.setFailed(`Not in team "${teamNameForErrorMessage}"`);
         }
 
     } catch (err) {
