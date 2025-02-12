@@ -32,7 +32,7 @@ async function run() {
             if (env.toLocaleLowerCase() == environment) {
                 teamPresent = teams.includes(team);
                 core.setOutput('permitted', teamPresent);
-                if (!teamPreset) {
+                if (!teamPresent) {
                     teamNameForErrorMessage = team
                 };
             }
