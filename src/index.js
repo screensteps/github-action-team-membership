@@ -6,16 +6,37 @@ run();
 
 async function run() {
     try {
+        const environment = core.getInput('environment', {required: true}).toLocaleLowerCase();
+        const restrictions = core.getInput('restrictions', {required: true}).split(',');
+        const shouldExit = core.getInput('exit').toLocaleLowerCase() == 'true';
         const token = core.getInput('token') ? core.getInput('token') : process.env['GITHUB_TOKEN'];
         const username = context.actor;
-        const team = core.getInput('team', {required: true}).toLocaleLowerCase();
 
+        // if restrictions is empty string
+        // if any restriction combinations do not contain ":"
+        if (shouldExit && restrictions.some(restriction => !restriction.includes(':'))) {
+            core.setFailed('Invalid restrictions');
+        }
+
+        // Retrieve teams
         const teams = await getTeams(token, username);
         core.setOutput('teams', teams);
         core.info(`User "${username}" is part of the teams: ${teams.join(',')}"`)
 
-        const teamPresent = teams.some(te => te.toLocaleLowerCase() == team);
-        core.setOutput('permitted', teamPresent);
+        // Execute workflow by default
+        let teamPresent = true;
+
+        let teamNameForErrorMessage;
+        restrictions.forEach(restriction => {
+            const [env, team] = restriction.split(':');
+            if (env.toLocaleLowerCase() == environment) {
+                teamPresent = teams.includes(team);
+                core.setOutput('permitted', teamPresent);
+                if (!teamPresent) {
+                    teamNameForErrorMessage = team
+                };
+            }
+        });
 
         if (core.getInput('comment') && core.getInput('issue-number') && !teamPresent) {
             const comment = core.getInput('comment');
@@ -33,9 +54,10 @@ async function run() {
             }
         }
 
-        if (core.getInput('exit').toLocaleLowerCase() == 'true' && !teamPresent) {
-            core.setFailed(`Not in team "${team}"`);
+        if (shouldExit && !teamPresent) {
+            core.setFailed(`Not in team "${teamNameForErrorMessage}"`);
         }
+
     } catch (err) {
         core.setFailed(`Error while trying to establish team membership: ${err}`);
     }
